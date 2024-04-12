@@ -1,0 +1,178 @@
+esphome:
+  name: quarthmeter
+  friendly_name: Quarthmeter
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "W+U9ZaO8bPW4jek/ZVfSPqCjZMmavq/FbD2uRMom4DI="
+
+ota:
+  password: "1c7afc204a8a4b0446d5a9580f89fadc"
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Quarthmeter Fallback Hotspot"
+    password: "0AC105aUb3WL"
+
+captive_portal:
+
+time:
+  - platform: homeassistant
+    id: homeassistant_time
+
+
+uart:
+  rx_pin: 25
+  tx_pin: 32
+  baud_rate: 9600
+
+sensor:
+  - platform: dht
+    pin: 4
+    temperature:
+      name: "Temperatura"
+      id: temperatura
+    humidity:
+      name: "Humedad"
+      id: humedad
+    update_interval: 5s
+  - platform: mhz19
+    co2:
+      name: "CO2"
+      id: co2
+    update_interval: 30s
+    automatic_baseline_calibration: false
+
+output:
+  - platform: gpio
+    pin: GPIO23
+    id: tst_Backlight
+light:
+  - platform: binary
+    name: "Sonda retroiluminacion"
+    output: tst_Backlight    
+    id: Retroiluminacion_Pantalla
+    restore_mode: ALWAYS_ON
+
+spi:
+  clk_pin: GPIO14
+  mosi_pin: GPIO13
+  miso_pin: GPIO12
+
+
+
+
+
+
+
+
+
+display:
+  - platform: ili9xxx
+    id: quarthmeter_display
+    model: ST7796
+    cs_pin: GPIO15
+    dc_pin: GPIO21
+    reset_pin: GPIO22
+    rotation: 90
+    lambda: |-
+      //Rellena el cuadrado de blanco
+      it.fill(id(my_white));
+
+      //Ponemos una linea para separar la hora y la fecha de los valores
+      it.line(20, 60, 461, 60, my_black);
+
+      //Imprime el tiempo
+      it.strftime(20, 19, id(font_3), id(my_black), "%d/%m/%Y", id(homeassistant_time).now());
+      it.strftime(372, 19, id(font_3), id(my_black), "%H:%M", id(homeassistant_time).now());
+
+      //Imprime las variables de temperatura, humedad y CO2
+      it.printf(72, 67, id(font_1), id(my_black), "%.0f", id(temperatura).state);
+      it.printf(172, 86, id(font_2), id(my_black), "%°C");
+
+      it.printf(292, 67, id(font_1), id(my_black), "%.0f%", id(humedad).state);
+      it.printf(389, 87, id(font_2), id(my_black), "%%");
+
+      it.printf(134, 177, id(font_1), id(my_black), "%.0f", id(co2).state);
+      it.printf(42, 239, id(font_2), id(my_black), "ppm");
+
+
+      //Emplazar la imagen
+      //it.image(360, 200, id(logo_1));
+      it.image(0, 0, id(background));
+
+      it.image(31, 100, id(temperatura_logo));
+
+      it.image(250, 100, id(humedad_logo));
+
+      it.image(62, 200, id(co2_logo));
+
+     
+
+      
+
+
+
+
+
+
+image:
+  - file: "images/background.png"
+    id: background
+    type: RGB24
+    use_transparency: True
+  - file: "images/humedad.png"
+    id: humedad_logo
+    type: GRAYSCALE
+    use_transparency: True
+    resize: 40x40
+  - file: "images/termometro.png"
+    id: temperatura_logo
+    type: GRAYSCALE
+    use_transparency: True
+    resize: 40x40
+  - file: "images/co2.png"
+    id: co2_logo
+    type: GRAYSCALE
+    use_transparency: True
+    resize: 40x40
+
+font:
+  - file:
+      type: gfonts
+      family: "Jura"
+    id: font_1
+    size: 84
+  - file:
+      type: gfonts
+      family: "Jura"
+    id: font_2
+    size: 38
+  - file:
+      type: gfonts
+      family: "Jura"
+    id: font_3
+    size: 40  
+
+color:
+  - id: my_white
+    red: 100%
+    green: 100%
+    blue: 100%
+  - id: my_black
+    red: 0%
+    green: 0%
+    blue: 0%
