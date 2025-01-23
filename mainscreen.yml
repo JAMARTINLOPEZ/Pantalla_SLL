@@ -57,11 +57,11 @@ sensor:
     automatic_baseline_calibration: false
 
 output:
-  - platform: gpio
+  - platform: ledc
     pin: GPIO23
     id: tst_Backlight
 light:
-  - platform: binary
+  - platform: monochromatic
     name: "Sonda retroiluminacion"
     output: tst_Backlight    
     id: Retroiluminacion_Pantalla
@@ -83,6 +83,7 @@ spi:
 display:
   - platform: ili9xxx
     id: quarthmeter_display
+    invert_colors: false
     model: ST7796
     cs_pin: GPIO15
     dc_pin: GPIO21
