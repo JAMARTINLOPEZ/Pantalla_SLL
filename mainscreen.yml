@@ -1,6 +1,7 @@
 esphome:
   name: mainscreen
   friendly_name: mainscreen
+psram:
 
 esp32:
   board: esp32dev
@@ -48,6 +49,7 @@ sensor:
     humidity:
       name: "Humedad"
       id: humedad
+    model: AM2302  
     update_interval: 5s
   - platform: mhz19
     co2:
@@ -133,22 +135,22 @@ display:
 image:
   - file: "images/background.png"
     id: background
-    type: RGB24
-    use_transparency: True
+    type: RGB
+    transparency: chroma_key
   - file: "images/humedad.png"
     id: humedad_logo
-    type: GRAYSCALE
-    use_transparency: True
+    type: BINARY
+    transparency: chroma_key
     resize: 40x40
   - file: "images/termometro.png"
     id: temperatura_logo
-    type: GRAYSCALE
-    use_transparency: True
+    type: BINARY
+    transparency: chroma_key
     resize: 40x40
   - file: "images/co2.png"
     id: co2_logo
-    type: GRAYSCALE
-    use_transparency: True
+    type: BINARY
+    transparency: chroma_key
     resize: 40x40
 
 font:
